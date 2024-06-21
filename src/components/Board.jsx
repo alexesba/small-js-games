@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from 'prop-types'
 import { createBoard } from "../utils";
 
@@ -14,6 +14,12 @@ export function Board({ width, height, size }) {
 
   const canvasRef = useRef(0);
   const requestRef = useRef(0)
+
+  const setRandomItem = useCallback(() => {
+    const x = Math.floor(Math.random() * (width - 1))
+    const y = Math.floor(Math.random() * (height - 1))
+    return [x, y]
+  }, [width, height])
 
   const [board, setBoard] = useState(createBoard(width, height, setRandomItem()))
   const [snake, setSnake] = useState([[0, 0], [1, 0], [2, 0]]);
@@ -36,6 +42,76 @@ export function Board({ width, height, size }) {
     context.fillRect(x, y, 1, 1)
   }, [canvasRef])
 
+  const checkGameOver = useCallback(([x, y]) => {
+    if (snake.find(([pieceX, pieceY]) => pieceX === x && pieceY === y)) {
+      return true;
+    }
+    return false;
+  }, [snake])
+
+  const resetBoard = useCallback(() => {
+    setBoard(createBoard(width, height, setRandomItem()))
+  }, [height, width, setRandomItem]);
+
+  const endGame = useCallback(() => {
+    alert('Game Over');
+    const newSnake = [[0, 0], [1, 0], [2, 0]];
+    setDirection('y');
+    setSnake(newSnake)
+    resetBoard()
+  }, [resetBoard])
+
+  const eat = useCallback((position) => {
+    const newSnake = [...snake, position];
+    setSnake(newSnake)
+    resetBoard()
+  }, [snake, resetBoard])
+
+  const walk = useCallback((position) => {
+    const [, body,] = snakeParts(snake);
+    setSnake([...body, position])
+  }, [snake])
+
+  const shouldEat = useCallback(([y, x]) => {
+    return board[x][y] === 1
+  }, [board])
+
+  const snakeWalk = useCallback((position) => {
+    if (shouldEat(position)) {
+      return eat(position)
+    }
+    return walk(position);
+  }, [eat, walk, shouldEat])
+
+  const validPosition = useCallback((y, x) =>{
+    return board[x]?.[y] != undefined
+  }, [board])
+
+  const getPosition = useCallback((direction) => {
+    const [, , [x, y]] = snakeParts(snake)
+
+    let position = [x, y]
+    switch (direction) {
+      case 'x': {
+        position = validPosition(x + 1, y) ? [x + 1, y] : [0, y]
+        break;
+      }
+      case '-x': {
+        position = validPosition(x - 1, y) ? [x - 1, y] : [width - 1, y]
+        break;
+      }
+
+      case 'y': {
+        position = validPosition(x, y + 1) ? [x, y + 1] : [x, 0]
+        break;
+      }
+      case '-y': {
+        position = validPosition(x, y - 1) ? [x, y - 1] : [x, height - 1]
+        break;
+      }
+    }
+    return position
+  }, [height, width, snake, validPosition])
 
   const updateBoard = useCallback((time) => {
     // console.log(time);
@@ -48,7 +124,7 @@ export function Board({ width, height, size }) {
       setUpdatedTime(time)
       const newHead = getPosition(currentDirection)
       if (checkGameOver(newHead)) {
-        return resetGame();
+        return endGame();
       }
       snakeWalk(newHead)
     }
@@ -76,31 +152,20 @@ export function Board({ width, height, size }) {
     })
 
     requestRef.current = requestAnimationFrame(updateBoard);
-  }, [snake, drawItem, board_height, board_width]);
-
-  function checkGameOver([x, y]) {
-    if (snake.find(([pieceX, pieceY]) => pieceX === x && pieceY === y)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  function resetGame() {
-    alert('Game Over');
-    const newSnake = [[0, 0], [1, 0], [2, 0]];
-    setDirection('y');
-    setSnake(newSnake)
-    setBoard(createBoard(width, height, setRandomItem()))
-  }
-
-  function snakeWalk(position) {
-    if (shouldEat(position)) {
-      return eat(position)
-    }
-    return walk(position);
-  }
-
+  }, [
+    board,
+    board_height,
+    board_width,
+    size,
+    snake,
+    checkGameOver,
+    currentDirection,
+    drawItem,
+    getPosition,
+    endGame,
+    snakeWalk,
+    updatedTime,
+  ]);
 
   function moveSnake(event) {
     switch (event.key) {
@@ -108,7 +173,7 @@ export function Board({ width, height, size }) {
         if (currentDirection === 'x' || currentDirection === '-x') return;
         const newHead = getPosition('-x')
         if (checkGameOver(newHead)) {
-          resetGame();
+          endGame();
           break;
         }
         setDirection('-x');
@@ -120,7 +185,7 @@ export function Board({ width, height, size }) {
         if (currentDirection === 'x' || currentDirection === '-x') return;
         const newHead = getPosition('x')
         if (checkGameOver(newHead)) {
-          resetGame();
+          endGame();
           break;
         }
         setDirection('x');
@@ -129,10 +194,10 @@ export function Board({ width, height, size }) {
       }
 
       case 'ArrowDown': {
-        if (currentDirection == 'y' || currentDirection === '-y') return;
+        if (currentDirection === 'y' || currentDirection === '-y') return;
         const newHead = getPosition('y')
         if (checkGameOver(newHead)) {
-          resetGame();
+          endGame();
           break;
         }
         setDirection('y');
@@ -145,7 +210,7 @@ export function Board({ width, height, size }) {
         const newHead = getPosition('-y')
 
         if (checkGameOver(newHead)) {
-          resetGame();
+          endGame();
           break;
         }
         setDirection('-y');
@@ -158,59 +223,6 @@ export function Board({ width, height, size }) {
       }
     }
   }
-
-  function validPosition(y, x) {
-    return board[x]?.[y] != undefined
-  }
-
-  function shouldEat([y, x]) {
-    return board[x][y] === 1
-  }
-
-  function eat(position) {
-    const newSnake = [...snake, position];
-    setSnake(newSnake)
-    setBoard(createBoard(width, height, setRandomItem()))
-  }
-
-  function walk(position) {
-    const [, body,] = snakeParts(snake);
-    setSnake([...body, position])
-  }
-
-
-  function setRandomItem() {
-    const x = Math.floor(Math.random() * (width - 1))
-    const y = Math.floor(Math.random() * (height - 1))
-    return [x, y]
-  }
-
-  function getPosition(direction) {
-    const [, , [x, y]] = snakeParts(snake)
-
-    let position = [x, y]
-    switch (direction) {
-      case 'x': {
-        position = validPosition(x + 1, y) ? [x + 1, y] : [0, y]
-        break;
-      }
-      case '-x': {
-        position = validPosition(x - 1, y) ? [x - 1, y] : [width - 1, y]
-        break;
-      }
-
-      case 'y': {
-        position = validPosition(x, y + 1) ? [x, y + 1] : [x, 0]
-        break;
-      }
-      case '-y': {
-        position = validPosition(x, y - 1) ? [x, y - 1] : [x, height - 1]
-        break;
-      }
-    }
-    return position
-  }
-
 
   useEffect(() => {
 
