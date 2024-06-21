@@ -28,3 +28,8 @@ body {
   place-items: center;
 }
 
+.score {
+  color: #535bf2;
+  font-weight: bold;
+  font-size: large;
+}

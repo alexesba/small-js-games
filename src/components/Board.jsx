@@ -22,7 +22,8 @@ export function Board({ width, height, size }) {
   }, [width, height])
 
   const [board, setBoard] = useState(createBoard(width, height, setRandomItem()))
-  const [snake, setSnake] = useState([[0, 0], [1, 0], [2, 0]]);
+  const [snake, setSnake] = useState([[0, 0], [1, 0]]);
+  const [score, setScore] = useState(0);
 
   const [pause, setPause] = useState(false);
 
@@ -55,10 +56,11 @@ export function Board({ width, height, size }) {
 
   const endGame = useCallback(() => {
     alert('Game Over');
-    const newSnake = [[0, 0], [1, 0], [2, 0]];
+    const newSnake = [[0, 0], [1, 0]];
     setDirection('y');
     setSnake(newSnake)
     resetBoard()
+    setScore(0);
   }, [resetBoard])
 
   const eat = useCallback((position) => {
@@ -78,12 +80,13 @@ export function Board({ width, height, size }) {
 
   const snakeWalk = useCallback((position) => {
     if (shouldEat(position)) {
-      return eat(position)
+      eat(position)
+      return setScore(score + 10);
     }
     return walk(position);
-  }, [eat, walk, shouldEat])
+  }, [eat, walk, shouldEat, score])
 
-  const validPosition = useCallback((y, x) =>{
+  const validPosition = useCallback((y, x) => {
     return board[x]?.[y] != undefined
   }, [board])
 
@@ -238,6 +241,10 @@ export function Board({ width, height, size }) {
   return (
     <div role="button" tabIndex="0" onKeyDown={moveSnake} >
       <canvas ref={canvasRef} />
+      <div>
+        <span>Score</span>:
+        <span className="score"> {score} </span>
+      </div>
     </div>
   )
 }
