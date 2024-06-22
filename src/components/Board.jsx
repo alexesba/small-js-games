@@ -15,14 +15,27 @@ export function Board({ width, height, size }) {
   const canvasRef = useRef(0);
   const requestRef = useRef(0)
 
-  const setRandomItem = useCallback(() => {
+  const [snake, setSnake] = useState([[0, 0], [1, 0]]);
+
+  const getCords = useCallback(() => {
+    console.log('Calling getCords')
     const x = Math.floor(Math.random() * (width - 1))
     const y = Math.floor(Math.random() * (height - 1))
     return [x, y]
   }, [width, height])
 
+  const setRandomItem = useCallback(() => {
+    const cords = getCords();
+
+    if (snake.find(pos => pos[0] === cords[0] && pos[1] === cords[1])) {
+      console.log('WARNING:', snake, cords)
+      return getCords()
+    }
+
+    return cords;
+  }, [snake, getCords])
+
   const [board, setBoard] = useState(createBoard(width, height, setRandomItem()))
-  const [snake, setSnake] = useState([[0, 0], [1, 0]]);
   const [score, setScore] = useState(0);
 
   const [pause, setPause] = useState(false);
@@ -232,7 +245,7 @@ export function Board({ width, height, size }) {
     requestRef.current = requestAnimationFrame(updateBoard)
 
     return () => {
-      console.log('Unmounted')
+      // console.log('Unmounted')
       cancelAnimationFrame(requestRef.current)
     }
 
