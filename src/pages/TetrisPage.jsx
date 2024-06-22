@@ -128,9 +128,9 @@ const createNewShape = () => {
 const getNewBoard = (width, height) => new Array(height).fill(0).map(() => new Array(width).fill(0))
 
 export function TetrisPage() {
-  const BOARD_WIDTH = 14
+  const BOARD_WIDTH = 15
   const BOARD_HEIGHT = 30
-  const SHAPE_SIZE = 20
+  const SHAPE_SIZE = 23
   const canvasRef = useRef(0);
   const requestRef = useRef(0)
   const [board, setBoard] = useState(getNewBoard(BOARD_WIDTH, BOARD_HEIGHT));
