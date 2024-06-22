@@ -242,11 +242,11 @@ export function Board({ width, height, size }) {
 
   useEffect(() => {
 
-    requestRef.current = requestAnimationFrame(updateBoard)
+    requestRef.current = window.requestAnimationFrame(updateBoard);
 
     return () => {
       // console.log('Unmounted')
-      cancelAnimationFrame(requestRef.current)
+      window.cancelAnimationFrame(requestRef.current)
     }
 
   }, [updateBoard]);
