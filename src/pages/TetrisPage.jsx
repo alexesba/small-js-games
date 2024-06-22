@@ -328,7 +328,6 @@ export function TetrisPage() {
     requestRef.current = requestAnimationFrame(updateBoard)
 
     return () => {
-      console.log('Un mount');
       cancelAnimationFrame(requestRef.current)
     }
 
