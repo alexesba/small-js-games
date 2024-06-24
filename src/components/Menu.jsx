@@ -2,11 +2,18 @@ import { Link, Outlet } from "react-router-dom";
 
 export function Menu() {
   return (
-    <div>
-      <Link to="game/tetris"> Tetris </Link>
-      <Link to="game/snake"> Snake </Link>
+    <ul className="menu">
+      <li>
+        <Link to="game/tetris"> Tetris </Link>
+      </li>
+      <li>
+        <Link to="game/snake"> Snake </Link>
+      </li>
+      <li>
+        <Link to="game/tictacktoe"> TickTacToe </Link>
+      </li>
 
-      <Outlet/>
-    </div>
+      <Outlet />
+    </ul>
   )
 }

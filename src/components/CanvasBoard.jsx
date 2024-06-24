@@ -12,8 +12,15 @@ const CanvasBoard = forwardRef(({ score, onKeyDown }, ref) => (
 );
 
 CanvasBoard.propTypes = {
-  onKeyDown: PropTypes.func.isRequired,
-  score: PropTypes.number.isRequired,
+  onKeyDown: PropTypes.func,
+  score: PropTypes.oneOfType([
+    PropTypes.number.isRequired,
+    PropTypes.string.isRequired,
+  ]).isRequired
+}
+
+CanvasBoard.defaultProps = {
+  onKeyDown: () => { },
 }
 CanvasBoard.displayName = "CanvasBoard";
 

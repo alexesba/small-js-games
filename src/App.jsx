@@ -6,6 +6,8 @@ import { Menu } from './components/Menu'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { TetrisPage } from './pages/TetrisPage'
 import { SnakePage } from './pages/SnakePage'
+import { TicTacToePage } from './pages/TicTacToePage'
+
 
 function App() {
 
@@ -15,6 +17,7 @@ function App() {
         <Route path="/" element={<Menu />} >
           <Route path="game/tetris" element={<TetrisPage />} />
           <Route path="game/snake" element={<SnakePage />} />
+          <Route path="game/tictacktoe" element={<TicTacToePage/>} />
         </Route>
       </Routes>
     </BrowserRouter>
