@@ -7,7 +7,7 @@ const SHAPE_SIZE = 150;
 const player1 = 'o'
 const player2 = 'x'
 const draw = 'draw'
-const winerRules = [
+const winnerRules = [
   // horizontales
   [[0, 0], [1, 0], [2, 0]],
   [[0, 1], [1, 1], [2, 1]],
@@ -23,14 +23,14 @@ const winerRules = [
   [[0, 2], [1, 1], [2, 0]],
 ]
 
-function checkWiner(board) {
-  if (winerRules.find(rule => rule.every(([x, y]) => {
+function checkWinner(board) {
+  if (winnerRules.find(rule => rule.every(([x, y]) => {
     return board[y][x] === player1
   }))) {
     return player1;
   }
 
-  if (winerRules.find(rule => rule.every(([x, y]) => board[y][x] === player2))) {
+  if (winnerRules.find(rule => rule.every(([x, y]) => board[y][x] === player2))) {
     return player2;
   }
 
@@ -47,7 +47,7 @@ const INITIAL_BOARD = [
 
 export function TicTacToePage() {
   const canvasRef = useRef(0);
-  const [winer, setWiner] = useState(null);
+  const [winner, setWinner] = useState(null);
 
   const [nextPlayer, setNextPlayer] = useState(undefined)
 
@@ -124,11 +124,11 @@ export function TicTacToePage() {
   });
 
   useEffect(() => {
-    const winer = checkWiner(board);
+    const winner = checkWinner(board);
 
-    if (winer) {
-      setWiner(winer);
-      setScore(score => ({ ...score, [winer]: score[winer] + 1 }))
+    if (winner) {
+      setWinner(winner);
+      setScore(score => ({ ...score, [winner]: score[winner] + 1 }))
     }
 
   }, [board])
@@ -172,15 +172,15 @@ export function TicTacToePage() {
 
   return (
     <div className="container">
-      {(winer === player1 || winer === player2 || winer === draw) && <div className="overlay">
+      {(winner === player1 || winner === player2 || winner === draw) && <div className="overlay">
         <ul>
           <li>
-            The Winner is: Player {winer}
+            The Winner is: Player {winner}
           </li>
           <li>
             <button onClick={() => {
               updateBoard(INITIAL_BOARD);
-              setWiner(null);
+              setWinner(null);
             }}>Play Again</button>
           </li>
         </ul>
